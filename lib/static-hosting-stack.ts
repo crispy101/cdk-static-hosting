@@ -29,44 +29,44 @@ export class StaticHostingStack extends Stack {
         siteNameArray.concat(props.extraDistributionCnames) :
         siteNameArray;
 
-        const bucket = new Bucket(this, 'ContentBucket', {
+        const bucket = new Bucket(this, id + '-ContentBucket', {
             bucketName: siteName,
             encryption: BucketEncryption.S3_MANAGED,
             blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
         });
 
-        new CfnOutput(this, 'Bucket', {
+        new CfnOutput(this, id + '-Bucket', {
             description: 'BucketName',
             value: bucket.bucketName,
         });
 
-        const oai = new OriginAccessIdentity(this, 'OriginAccessIdentity', {
+        const oai = new OriginAccessIdentity(this, id + '-OriginAccessIdentity', {
             comment: 'Allow CloudFront to access S3',
         });
 
         bucket.grantRead(oai);
 
         const publisherUser = (props.createPublisherUser)
-            ? new User(this, 'PublisherUser', {
+            ? new User(this, id + '-PublisherUser', {
                 userName: `publisher-${siteName}`,
             })
             : undefined;
 
         if (publisherUser) {
-            new CfnOutput(this, 'PublisherUserName', {
+            new CfnOutput(this, id + '-PublisherUserName', {
                 description: 'PublisherUser',
                 value: publisherUser.userName,
             });
         };
 
         const publisherGroup = (props.createPublisherGroup)
-            ? new Group(this, 'PublisherGroup')
+            ? new Group(this, id + '-PublisherGroup')
             : undefined;
 
         if (publisherGroup) {
             bucket.grantReadWrite(publisherGroup);
 
-            new CfnOutput(this, 'PublisherGroupName', {
+            new CfnOutput(this, id + '-PublisherGroupName', {
                 description: 'PublisherGroup',
                 value: publisherGroup.groupName,
             });
@@ -77,7 +77,7 @@ export class StaticHostingStack extends Stack {
         };
  
         const loggingBucket = (props.enableCloudFrontAccessLogging)
-            ? new Bucket(this, 'LoggingBucket', {
+            ? new Bucket(this, id + '-LoggingBucket', {
                 bucketName: `${siteName}-access-logs`,
                 encryption: BucketEncryption.S3_MANAGED,
                 blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
@@ -88,7 +88,7 @@ export class StaticHostingStack extends Stack {
         if (loggingBucket) {
             loggingBucket.grantWrite(oai);
 
-            new CfnOutput(this, 'LoggingBucketName', {
+            new CfnOutput(this, id + '-LoggingBucketName', {
                 description: "CloudFront Logs",
                 value: loggingBucket.bucketName,
             });
@@ -98,7 +98,7 @@ export class StaticHostingStack extends Stack {
             ? { bucket: loggingBucket }
             : undefined
 
-        const distribution = new CloudFrontWebDistribution(this, 'BucketCdn', {
+        const distribution = new CloudFrontWebDistribution(this, id + '-BucketCdn', {
             aliasConfiguration: {
                 acmCertRef: props.certificateArn,
                 names: distributionCnames,
@@ -132,17 +132,17 @@ export class StaticHostingStack extends Stack {
                 resources: [`arn:aws:cloudfront::*:distribution/${distribution.distributionId}`],
             });
 
-            const cloudFrontInvalidationPolicy = new Policy(this, 'CloudFrontInvalidationPolicy', {
+            const cloudFrontInvalidationPolicy = new Policy(this, id + '-CloudFrontInvalidationPolicy', {
                 groups: [publisherGroup],
                 statements: [cloudFrontInvalidationPolicyStatement],
             });
         };
 
-        new CfnOutput(this, 'DistributionId', {
+        new CfnOutput(this, id + '-DistributionId', {
             description: 'DistributionId',
             value: distribution.distributionId,
         });
-        new CfnOutput(this, 'DistributionDomainName', {
+        new CfnOutput(this, id + '-DistributionDomainName', {
             description: 'DistributionDomainName',
             value: distribution.domainName,
         });
@@ -150,7 +150,7 @@ export class StaticHostingStack extends Stack {
         if (props.createDnsRecord) {
             const zone = HostedZone.fromLookup(this, 'Zone', { domainName: props.domainName });
 
-            new ARecord(this, 'SiteAliasRecord', {
+            new ARecord(this, id + '-SiteAliasRecord', {
                 recordName: siteName,
                 target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
                 zone: zone,
