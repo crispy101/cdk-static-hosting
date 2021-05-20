@@ -1,4 +1,4 @@
-import { Construct, CfnOutput, RemovalPolicy, StackProps } from '@aws-cdk/core';
+import { Construct, CfnOutput, RemovalPolicy, StackProps, Stack} from '@aws-cdk/core';
 import { Bucket, BucketEncryption, BlockPublicAccess } from '@aws-cdk/aws-s3';
 import { OriginAccessIdentity, CloudFrontWebDistribution, PriceClass, ViewerProtocolPolicy, SecurityPolicyProtocol, SSLMethod } from '@aws-cdk/aws-cloudfront';
 import { HostedZone, RecordTarget, ARecord } from '@aws-cdk/aws-route53';
@@ -18,7 +18,7 @@ export interface ResourceProps extends StackProps {
     enableCloudFrontAccessLogging?: boolean;
 }
 
-export class StaticHostingStack extends Construct {
+export class StaticHostingStack extends Stack {
     constructor(scope: Construct, id: string, props: ResourceProps) {
         super(scope, id);
 
