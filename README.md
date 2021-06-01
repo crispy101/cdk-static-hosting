@@ -5,7 +5,7 @@
 This repository defines a CDK stack for hosting a static website on AWS using S3 and CloudFront. 
 It can be imported and use within CDK application.
 
-## Using
+## Example
 The following CDK snippet can be used to provision the static hosting stack.
 
 ```
