@@ -20,7 +20,7 @@ export interface ResourceProps extends StackProps {
 
 export class StaticHostingStack extends Stack {
     constructor(scope: Construct, id: string, props: ResourceProps) {
-        super(scope, id);
+        super(scope, id, props);
 
         const siteName = `${props.subDomainName}.${props.domainName}`;
         const siteNameArray: Array<string> = [siteName];
