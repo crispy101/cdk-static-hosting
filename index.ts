@@ -1,3 +1,3 @@
-import { StaticHosting } from "./lib/static-hosting"
+import { StaticHosting, StaticHostingProps } from "./lib/static-hosting"
 
-export { StaticHosting };
+export { StaticHosting, StaticHostingProps };

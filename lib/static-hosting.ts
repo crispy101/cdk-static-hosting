@@ -1,11 +1,11 @@
 import { Construct, CfnOutput, RemovalPolicy, StackProps, Stack} from '@aws-cdk/core';
 import { Bucket, BucketEncryption, BlockPublicAccess } from '@aws-cdk/aws-s3';
-import { OriginAccessIdentity, CloudFrontWebDistribution, PriceClass, ViewerProtocolPolicy, SecurityPolicyProtocol, SSLMethod, Behavior, SourceConfiguration, LambdaEdgeEventType } from '@aws-cdk/aws-cloudfront';
+import { OriginAccessIdentity, CloudFrontWebDistribution, PriceClass, ViewerProtocolPolicy, SecurityPolicyProtocol, SSLMethod, Behavior, SourceConfiguration } from '@aws-cdk/aws-cloudfront';
 import { HostedZone, RecordTarget, ARecord } from '@aws-cdk/aws-route53';
 import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets';
 import { User, Group, Policy, PolicyStatement, Effect } from '@aws-cdk/aws-iam';
 
-export interface PwaHostingProps {
+export interface StaticHostingProps {
     domainName: string;
     subDomainName: string;
     certificateArn: string;
@@ -26,13 +26,8 @@ export interface PwaHostingProps {
     behaviors?: Array<Behavior>;
 }
 
-export interface EdgeFunctionReference {
-  eventType: LambdaEdgeEventType;
-  arn: string;
-}
-
 export class StaticHosting extends Construct {
-    constructor(scope: Construct, id: string, props: PwaHostingProps) {
+    constructor(scope: Construct, id: string, props: StaticHostingProps) {
         super(scope, id);
 
         const siteName = `${props.subDomainName}.${props.domainName}`;
