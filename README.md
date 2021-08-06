@@ -1,18 +1,18 @@
-# Aligent AWS Static Hosting Stack
+# Aligent AWS Static Hosting
 
 ## Overview
 
-This repository defines a CDK stack for hosting a static website on AWS using S3 and CloudFront. 
+This repository defines a CDK construct for hosting a static website on AWS using S3 and CloudFront. 
 It can be imported and use within CDK application.
 
 ## Example
-The following CDK snippet can be used to provision the static hosting stack.
+The following CDK snippet can be used to provision a static hosting stack using this construct.
 
 ```
 import 'source-map-support/register';
 import * as cdk from '@aws-cdk/core';
-import { StaticHostingStack } from '@aligent/aws-cdk-static-hosting-stack'
-import { Construct } from '@aws-cdk/core';
+import { StaticHosting } from '@aligent/aws-cdk-static-hosting'
+import { Stack } from '@aws-cdk/core';
 
 const hostingStackProps = {
      env: {
@@ -28,7 +28,11 @@ const hostingStackProps = {
      createPublisherUser: true,
 };
 
-const app = new cdk.App();
+class StaticHostingStack extends Stack {
+  constructor(scope: Construct, id: string, props: hostingStackProps) {
+    super(scope, id, props);
 
-new StaticHostingStack(scope, 'PWA-hosting-stack', hostingStackProps);
+    new StaticHosting(scope, 'PWA-hosting-stack', props);
+  }
+}
 ```

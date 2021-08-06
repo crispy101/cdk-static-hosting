@@ -1,5 +1,5 @@
 {
-  "name": "@aligent/aws-cdk-static-hosting-stack",
+  "name": "@aligent/cdk-static-hosting",
   "version": "0.1.1",
   "main": "index.js",
   "license": "GPL-3.0-only",
