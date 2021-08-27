@@ -1,6 +1,6 @@
 import { Construct, CfnOutput, RemovalPolicy, StackProps, Stack} from '@aws-cdk/core';
 import { Bucket, BucketEncryption, BlockPublicAccess } from '@aws-cdk/aws-s3';
-import { OriginAccessIdentity, CloudFrontWebDistribution, PriceClass, ViewerProtocolPolicy, SecurityPolicyProtocol, SSLMethod, Behavior, SourceConfiguration } from '@aws-cdk/aws-cloudfront';
+import { OriginAccessIdentity, CloudFrontWebDistribution, PriceClass, ViewerProtocolPolicy, SecurityPolicyProtocol, SSLMethod, Behavior, SourceConfiguration, CloudFrontWebDistributionProps } from '@aws-cdk/aws-cloudfront';
 import { HostedZone, RecordTarget, ARecord } from '@aws-cdk/aws-route53';
 import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets';
 import { User, Group, Policy, PolicyStatement, Effect } from '@aws-cdk/aws-iam';
@@ -24,6 +24,7 @@ export interface StaticHostingProps {
      * Optional set of behaviors to override the default behvior defined in this construct
      */
     behaviors?: Array<Behavior>;
+    enableErrorConfig: boolean;
 }
 
 export class StaticHosting extends Construct {
@@ -124,24 +125,34 @@ export class StaticHosting extends Construct {
             originConfigs = originConfigs.concat(props.customOriginConfigs);
         }
 
-        const distribution = new CloudFrontWebDistribution(this, 'BucketCdn', {
-            aliasConfiguration: {
-                acmCertRef: props.certificateArn,
-                names: distributionCnames,
-                securityPolicy: SecurityPolicyProtocol.TLS_V1_2_2018,
-                sslMethod: SSLMethod.SNI,
-            },
-            originConfigs,
-            errorConfigurations: [{
+
+        let distributionProps: CloudFrontWebDistributionProps = {
+          aliasConfiguration: {
+            acmCertRef: props.certificateArn,
+            names: distributionCnames,
+            securityPolicy: SecurityPolicyProtocol.TLS_V1_2_2018,
+            sslMethod: SSLMethod.SNI,
+          },
+          originConfigs,
+          priceClass: PriceClass.PRICE_CLASS_ALL,
+          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          loggingConfig: loggingConfig,
+        };
+
+        if (props.enableErrorConfig) {
+          distributionProps = {
+            ...distributionProps, ...{
+              errorConfigurations: [{
                 errorCode: 404,
                 errorCachingMinTtl: 0,
                 responseCode: 200,
                 responsePagePath: '/index.html',
-            }],
-            priceClass: PriceClass.PRICE_CLASS_ALL,
-            viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-            loggingConfig: loggingConfig,
-        });
+              }]
+            }
+          }
+        }
+
+        const distribution = new CloudFrontWebDistribution(this, 'BucketCdn', distributionProps)
 
         if(publisherGroup) {
             const cloudFrontInvalidationPolicyStatement = new PolicyStatement({
