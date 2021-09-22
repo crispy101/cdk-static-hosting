@@ -25,6 +25,7 @@ export interface StaticHostingProps {
      */
     behaviors?: Array<Behavior>;
     enableErrorConfig: boolean;
+    defaultRootObject?: string
 }
 
 export class StaticHosting extends Construct {
@@ -134,6 +135,7 @@ export class StaticHosting extends Construct {
             sslMethod: SSLMethod.SNI,
           },
           originConfigs,
+          defaultRootObject: props.defaultRootObject,
           priceClass: PriceClass.PRICE_CLASS_ALL,
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
           loggingConfig: loggingConfig,
