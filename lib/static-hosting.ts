@@ -19,6 +19,13 @@ export interface StaticHostingProps {
      * Used to add Custom origins and behaviors
      */
     customOriginConfigs?: Array<SourceConfiguration>;
+    /**
+     * Used to prepend the behaviours introduced as part of customOriginConfigs.
+     * This is a work around until this construct is updated to use the new
+     * Distribution API.
+     * https://docs.aws.amazon.com/cdk/api/latest/docs/aws-cloudfront-readme.html#distribution-api
+     */
+    prependCustomOriginBehaviours?: boolean;
 
     /**
      * Optional set of behaviors to override the default behvior defined in this construct
@@ -123,7 +130,11 @@ export class StaticHosting extends Construct {
 
         // Add any custom origins passed to the construct
         if (props.customOriginConfigs) {
-            originConfigs = originConfigs.concat(props.customOriginConfigs);
+            if (props.prependCustomOriginBehaviours) {
+                originConfigs = props.customOriginConfigs.concat(originConfigs);
+            } else {
+                originConfigs = originConfigs.concat(props.customOriginConfigs);
+            }
         }
 
 
