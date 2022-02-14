@@ -25,17 +25,17 @@ const HostingStackProps : StaticHostingProps = {
     enableErrorConfig: true
 };
 
-class PWAStack extends Stack {
+class HostingStack extends Stack {
     constructor(scope: Construct, id: string, props: StackProps) {
         super(scope, id, props);
 
-        new StaticHosting(this, 'pwa-hosting-stack', HostingStackProps);
+        new StaticHosting(this, 'hosting-stack', HostingStackProps);
     }
 }
 
 const app = new cdk.App();
 
-new PWAStack(app, 'pwa-hosting-stack', {
+new HostingStack(app, 'hosting-stack', {
      env: {
           region: 'ap-southeast-2',
           account: 'account-id',
