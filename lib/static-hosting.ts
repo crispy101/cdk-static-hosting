@@ -14,6 +14,7 @@ export interface StaticHostingProps {
     createPublisherUser?: boolean;
     extraDistributionCnames?: ReadonlyArray<string>;
     enableCloudFrontAccessLogging?: boolean;
+    enableS3AccessLogging?: boolean;
     zoneName?: string;
     /**
      * Used to add Custom origins and behaviors
@@ -46,10 +47,28 @@ export class StaticHosting extends Construct {
         siteNameArray.concat(props.extraDistributionCnames) :
         siteNameArray;
 
+
+        const s3LoggingBucket = (props.enableS3AccessLogging)
+            ? new Bucket(this, 'S3LoggingBucket', {
+                bucketName: `${siteName}-s3-access-logs`,
+                encryption: BucketEncryption.S3_MANAGED,
+                blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+                removalPolicy: RemovalPolicy.RETAIN,
+            })
+            : undefined;
+
+        if (s3LoggingBucket) {
+            new CfnOutput(this, 'S3LoggingBucketName', {
+                description: "S3 Logs",
+                value: s3LoggingBucket.bucketName,
+            });
+        }
+
         const bucket = new Bucket(this, 'ContentBucket', {
             bucketName: siteName,
             encryption: BucketEncryption.S3_MANAGED,
             blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+            serverAccessLogsBucket: s3LoggingBucket
         });
 
         new CfnOutput(this, 'Bucket', {
