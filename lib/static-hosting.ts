@@ -54,6 +54,7 @@ export class StaticHosting extends Construct {
                 encryption: BucketEncryption.S3_MANAGED,
                 blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
                 removalPolicy: RemovalPolicy.RETAIN,
+                enforceSSL: true
             })
             : undefined;
 
@@ -68,7 +69,8 @@ export class StaticHosting extends Construct {
             bucketName: siteName,
             encryption: BucketEncryption.S3_MANAGED,
             blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-            serverAccessLogsBucket: s3LoggingBucket
+            serverAccessLogsBucket: s3LoggingBucket,
+            enforceSSL: true
         });
 
         new CfnOutput(this, 'Bucket', {
@@ -118,6 +120,7 @@ export class StaticHosting extends Construct {
                 encryption: BucketEncryption.S3_MANAGED,
                 blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
                 removalPolicy: RemovalPolicy.RETAIN,
+                enforceSSL: true
             })
             : undefined;
 
